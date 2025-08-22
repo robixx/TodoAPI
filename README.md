@@ -49,3 +49,11 @@ A RESTful API for managing todo items, built with ASP.NET Core 8 Web API.
 
 - All Todo APIs require a valid JWT token.
 - Use correct `pageNumber` and `pageSize` for pagination when fetching lists.
+
+## Project Features
+
+✅ JWT Authentication - Secure API endpoints  
+✅ Repository Pattern - Generic repository implementation  
+✅ Entity Framework Core - Code-first approach with SQL Server  
+✅ AutoMapper - For object mapping between DTOs and entities  
+✅ Global Exception Handling - Custom middleware for error management  
