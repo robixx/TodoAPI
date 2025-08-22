@@ -40,10 +40,18 @@ namespace TodoAPI.Services.Implementations
             return _mapper.Map<TodoItemReadDto>(todo);
         }
 
-        public async Task<IEnumerable<TodoItemReadDto>> GetTodosAsync(int userId, int pageNumber, int pageSize)
+        public async Task<PagedResultDto<TodoItemReadDto>> GetTodosAsync(int userId, int pageNumber, int pageSize)
         {
-            var todos = await _repo.GetAllAsync(userId, pageNumber, pageSize);
-            return _mapper.Map<IEnumerable<TodoItemReadDto>>(todos);
+            var (todos, totalCount) = await _repo.GetAllAsync(userId, pageNumber, pageSize);
+            var todoDtos = _mapper.Map<IEnumerable<TodoItemReadDto>>(todos);
+
+            return new PagedResultDto<TodoItemReadDto>
+            {
+                Items = todoDtos,
+                Page = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            };
         }
 
         public async Task<TodoItemReadDto> UpdateTodoAsync(int id, TodoItemUpdateDto dto, int userId)

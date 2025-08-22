@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Utilities;
 using System.Linq.Expressions;
 using TodoAPI.Data;
 using TodoAPI.Models;
@@ -28,20 +29,23 @@ namespace TodoAPI.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(int userId, int pageNumber, int pageSize)
+        public async Task<(IEnumerable<T>Items, int TotalCount)> GetAllAsync(int userId, int pageNumber, int pageSize)
         {
             if (typeof(T) == typeof(TodoItem))
             {
-                var query = _dbSet.Cast<TodoItem>()
-                                  .Where(t => t.UserId == userId)
-                                  .Skip((pageNumber - 1) * pageSize)
-                                  .Take(pageSize)
-                                  .AsNoTracking()
-                                  .ToListAsync();
+                var query = _dbSet.Cast<TodoItem>().Where(t => t.UserId == userId);               
+                var totalCount = await query.CountAsync();               
+                var items = await query
+                    .OrderByDescending(t => t.Id)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .AsNoTracking()
+                    .ToListAsync();
 
-                return (IEnumerable<T>)(await query);
-            }
-            return await _dbSet.ToListAsync();
+                return (items.Cast<T>(), totalCount);
+            }            
+            var allItems = await _dbSet.ToListAsync();
+            return (allItems, allItems.Count);
         }
 
         public async Task<T> GetByIdAsync(int id, int userId)
